@@ -1,5 +1,4 @@
 package com.egs.technicaltask;
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -24,25 +23,19 @@ public class ReadCSV {
 		String csvPath = "";
 		properties.load(ReadCSV.class.getResourceAsStream("/egs.properties"));
 		csvPath = properties.getProperty("csvfilepath");
-		System.out.println(csvPath);
 		if (StringUtils.isNotBlank(csvPath) ) {
 			JSONArray allCustomers = readCsvFileAndCreateCustomers(csvPath);
-			System.out.println(allCustomers);
 			String apiEndPoint = properties.getProperty("endpoint");
 			if (StringUtils.isNotBlank(apiEndPoint) && !allCustomers.isEmpty()) {
 				for (int i=0;i<allCustomers.length();i++) {
 					JSONObject customerJson  = allCustomers.getJSONObject(i);
-					if (callService(customerJson)){
+					if (callService(customerJson,apiEndPoint)){
 		         	   System.out.println("customer created successfully : " + customerJson.getLong("customerref"));
 		            }else {
 		         	   System.out.println("Could not Create customer : " + customerJson.getLong("customerref"));
 		            }	
 				}
 			}
-			
-			
-			
-		
 		}
 		
 	} catch (IOException | CsvException e) {
@@ -69,22 +62,21 @@ public class ReadCSV {
                customerJson.put("county",rowData[5]);
                customerJson.put("country",rowData[6]);
                customerJson.put("postcode",rowData[7]);
-               System.out.println("customer JSON is : " + customerJson);
+               
                jarr.put(customerJson);
            }
        }
        return jarr;
    }
-   private static boolean callService(JSONObject jobj) {
+   private static boolean callService(JSONObject jobj,String apiEndPoint) {
 	   try {
-		URL url = new URL ("http://localhost:8000/createcustomer");
+		URL url = new URL (apiEndPoint);
 		HttpURLConnection con = ((HttpURLConnection)url.openConnection());
 		con.setRequestMethod("POST");
 		con.setRequestProperty("Content-Type", "application/json");
 		con.setRequestProperty("Accept", "application/json");
 		con.setDoOutput(true);
 		String requestBody = jobj.toString();
-		System.out.println("Request Body in call Service : " +requestBody);
 		try(OutputStream os = con.getOutputStream()) {
 		    byte[] input = requestBody.getBytes("utf-8");
 		    os.write(input, 0, input.length);			

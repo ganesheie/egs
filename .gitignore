@@ -1,0 +1,5 @@
+/REST/*.classpath
+/REST/*.project
+/REST/.settings/org.eclipse.core.resources.prefs
+/REST/.settings
+/REST/target
