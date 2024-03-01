@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -49,21 +50,24 @@ public class ReadCSV {
            List<String[]> rows = reader.readAll();
            for (int i = 1; i < rows.size(); i++) { // Start from index 1 to skip headers
         	   JSONObject customerJson = new JSONObject();
-        	   
         	   String[] rowData = rows.get(i);
+               if (NumberUtils.isParsable(rowData[0])) {
+	               customerJson.put("customerref", Long.valueOf(rowData[0]));
+	               customerJson.put("customername",StringUtils.isNotEmpty(rowData[1]) ?  rowData[1] : "" );
+	               
+	               customerJson.put("addressline1",StringUtils.isNotEmpty(rowData[2]) ? rowData[2] : "" );
+	               customerJson.put("addressline2",StringUtils.isNotEmpty(rowData[3]) ? rowData[3] : "" );
+	               
+	               customerJson.put("town",StringUtils.isNotEmpty(rowData[4]) ? rowData[4] : "");
+	               customerJson.put("county",StringUtils.isNotEmpty(rowData[5]) ? rowData[5] : "");
+	               customerJson.put("country",StringUtils.isNotEmpty(rowData[6]) ? rowData[6] : "");
+	               customerJson.put("postcode",StringUtils.isNotEmpty(rowData[7]) ? rowData[7] : "");
+	               jarr.put(customerJson);
+           		}else {
+           			System.out.println("Customer ref is Mandatory and should be a number. ");
+           		}
                
-               customerJson.put("customerref", Long.valueOf(rowData[0]));
-               customerJson.put("customername",rowData[1] );
                
-               customerJson.put("addressline1",rowData[2]);
-               customerJson.put("addressline2",rowData[3]);
-               
-               customerJson.put("town",rowData[4]);
-               customerJson.put("county",rowData[5]);
-               customerJson.put("country",rowData[6]);
-               customerJson.put("postcode",rowData[7]);
-               
-               jarr.put(customerJson);
            }
        }
        return jarr;
@@ -93,9 +97,9 @@ public class ReadCSV {
 	} catch (IOException e) {
 		System.out.println("IOException" + e.getMessage());
 	} 
-	return false;  
-	   
-	   
-   
+	return false;
    }
+  
+   
+   
 }
